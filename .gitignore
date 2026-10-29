@@ -1,0 +1,49 @@
+# Python & Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment Variables & Secrets
+.env
+.env.local
+*.env
+
+# SQLite Databases & Storage
+*.db
+*.sqlite
+*.sqlite3
+backend/tiger_detection.db
+
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Node / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+dist-ssr/
+build/
+*.local
+
+# Model weights & cache (heavy binaries)
+*.pt
+*.pth
+*.onnx
+.cache/
+huggingface/
+
+# IDE / Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
