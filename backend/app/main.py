@@ -5,18 +5,27 @@ from pathlib import Path
 import time
 from typing import List, Optional
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
 
+from app.db import init_db, insert_detection, get_history, get_detection_by_id
 from app.services.detector import get_detector
 from app.services.reid_engine import get_reid_engine
+
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
 
 app = FastAPI(
     title="Tiger Detection and Re-Identification API",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Enable CORS for React frontend (Vite default is 5173, also permit local previews)
@@ -72,6 +81,7 @@ class IdentificationResult(BaseModel):
 
 
 class AnalysisResponse(BaseModel):
+    id: Optional[int] = None
     filename: str
     image_url: Optional[str] = None
     width: int
@@ -88,6 +98,25 @@ def health_check():
         "service": "Tiger Detection and Re-Identification API",
         "timestamp": datetime.utcnow().isoformat(),
     }
+
+
+@app.get("/api/v1/history")
+async def fetch_history(limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0)):
+    records = await get_history(limit=limit, offset=offset)
+    return {
+        "total": len(records),
+        "limit": limit,
+        "offset": offset,
+        "records": records,
+    }
+
+
+@app.get("/api/v1/history/{record_id}")
+async def fetch_detection_record(record_id: int):
+    record = await get_detection_by_id(record_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Detection record not found.")
+    return record
 
 
 @app.post("/api/v1/images/validate")
@@ -140,10 +169,12 @@ async def detect_and_identify(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Corrupted or unreadable image file.")
 
     # Save to uploads for static preview
-    timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    now_dt = datetime.now()
+    timestamp_str = now_dt.strftime("%Y%m%d_%H%M%S")
     saved_filename = f"{timestamp_str}_{file.filename}"
     save_path = UPLOADS_DIR / saved_filename
     image.save(save_path)
+    image_url = f"/static/uploads/{saved_filename}"
 
     # 1. Tiger Detection & Crop
     detector = get_detector()
@@ -155,9 +186,31 @@ async def detect_and_identify(file: UploadFile = File(...)):
 
     elapsed_ms = round((time.time() - start_time) * 1000, 2)
 
+    # 3. Persist to SQLite Database
+    record_id = await insert_detection({
+        "timestamp": now_dt.isoformat(),
+        "filename": file.filename,
+        "image_url": image_url,
+        "width": image.width,
+        "height": image.height,
+        "detected": detected,
+        "bbox_x1": bbox[0] if bbox else 0.0,
+        "bbox_y1": bbox[1] if bbox else 0.0,
+        "bbox_x2": bbox[2] if bbox else float(image.width),
+        "bbox_y2": bbox[3] if bbox else float(image.height),
+        "detection_confidence": det_conf,
+        "predicted_id": reid_res["matched_id"],
+        "tiger_name": reid_res["name"],
+        "similarity_score": reid_res["similarity_score"],
+        "is_known": reid_res["is_known"],
+        "reference_image": reid_res["reference_image"],
+        "processing_time_ms": elapsed_ms,
+    })
+
     return AnalysisResponse(
+        id=record_id,
         filename=saved_filename,
-        image_url=f"/static/uploads/{saved_filename}",
+        image_url=image_url,
         width=image.width,
         height=image.height,
         detection=DetectionResult(

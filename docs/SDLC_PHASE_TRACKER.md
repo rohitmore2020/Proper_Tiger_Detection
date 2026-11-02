@@ -49,7 +49,7 @@ Develop an end-to-end computer vision and web application capable of:
 | **PH-05** | Tiger Detection Pipeline Integration | P0 | 1.5 h | PH-03 | **Complete** |
 | **PH-06** | Individual Tiger Re-Identification Engine | P0 | 1.5 h | PH-03, PH-04 | **Complete** |
 | **PH-07** | Core FastAPI Application & REST Endpoints | P0 | 1.0 h | PH-05, PH-06 | **Complete** |
-| **PH-08** | SQLite Database & Detection History System | P0 | 1.0 h | PH-07 | **Not Started** |
+| **PH-08** | SQLite Database & Detection History System | P0 | 1.0 h | PH-07 | **Complete** |
 | **PH-09** | React Dashboard UI Development | P0 | 2.0 h | PH-02 | **Not Started** |
 | **PH-10** | Frontend-Backend Integration & End-to-End Pipeline | P0 | 1.0 h | PH-07, PH-08, PH-09 | **Not Started** |
 | **PH-11** | Verification, Performance Testing & Model Evaluation | P1 | 1.0 h | PH-10 | **Not Started** |
@@ -207,24 +207,12 @@ graph TD
 ### PH-08: SQLite Database & Detection History System
 - **Priority:** P0 (Approved MVP Requirement #5)
 - **Estimated Time:** 1.0 hour
-- **Status:** `Not Started`
+- **Status:** `Complete`
 - **Audit Findings & Current Evidence:**
-  - No database code, models, or SQLite file exists anywhere in `backend/`.
-- **Main Tasks:**
-  - Create database module `backend/app/db/`:
-    - Table `detections`:
-      - `id`: Integer primary key (auto-increment)
-      - `timestamp`: DateTime ISO string
-      - `image_path`: String
-      - `bbox_x1`, `bbox_y1`, `bbox_x2`, `bbox_y2`: Float
-      - `detection_confidence`: Float
-      - `predicted_identity`: String
-      - `similarity_score`: Float
-      - `status`: String (`Known`, `Unknown`, `No Tiger Detected`)
-  - Add REST endpoints:
-    - `GET /api/v1/history`: Returns last $N$ detection records (paginated).
-    - `GET /api/v1/history/{id}`: Returns details of a specific record.
-    - `DELETE /api/v1/history/{id}`: Optional record cleanup.
+  - Implemented `backend/app/db.py` managing SQLite storage via `aiosqlite`.
+  - Schema `detections` created with timestamp, coordinates, predicted identity, similarity score, image URLs, and latency.
+  - Endpoints `GET /api/v1/history` and `GET /api/v1/history/{id}` implemented.
+  - Automated integration test `backend/tests/test_history.py` passed cleanly.
 - **Acceptance Criteria:**
   - Every valid detection automatically writes a record to `backend/tiger_detection.db`.
   - `GET /api/v1/history` returns the saved records with timestamps and scores.
@@ -361,7 +349,7 @@ Before marking any phase `Complete`, the following verifiable artifact must be l
 - [x] **PH-05 (Detection):** `pytest backend/tests/test_detector.py` successfully detects tiger in test image and produces crop.
 - [x] **PH-06 (Re-ID):** `pytest backend/tests/test_reid.py` successfully matches known identity and rejects unknown query.
 - [x] **PH-07 (FastAPI):** `curl -F "file=@sample.jpg" http://localhost:8000/api/v1/detect-and-identify` returns 200 with detection + identity JSON.
-- [ ] **PH-08 (Database):** SQLite file `tiger_detection.db` exists with verified rows inserted after detection.
+- [x] **PH-08 (Database):** SQLite file `tiger_detection.db` exists with verified rows inserted after detection.
 - [ ] **PH-09 (Frontend UI):** Vite build succeeds without compile or lint errors.
 - [ ] **PH-10 (Integration):** Live end-to-end browser test: upload image -> view bbox -> view matched tiger & similarity score -> view entry in history table.
 - [ ] **PH-11 (Testing & Evaluation):** Quantitative benchmark table generated in documentation.
