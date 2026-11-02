@@ -10,7 +10,9 @@ from app.services.feature_extractor import (
 
 
 def main():
-    paths = sorted(Path("../dataset/reference").glob("*.jpg"))
+    paths = sorted(Path("dataset/reference").glob("*.jpg"))
+    if not paths:
+        paths = sorted(Path("../dataset/reference").glob("*.jpg"))
 
     if len(paths) < 2:
         raise RuntimeError("Need at least two reference images.")

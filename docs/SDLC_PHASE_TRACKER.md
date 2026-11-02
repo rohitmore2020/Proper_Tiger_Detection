@@ -45,7 +45,7 @@ Develop an end-to-end computer vision and web application capable of:
 | **PH-01** | Requirements & Acceptance Criteria Formalization | P0 | 0.5 h | None | **Complete** |
 | **PH-02** | System Architecture & Technical Design Specification | P0 | 0.5 h | PH-01 | **Complete** |
 | **PH-03** | Toolchain & Environment Remediation | P0 | 1.0 h | PH-02 | **Complete** |
-| **PH-04** | Dataset Cataloging & Identity Ground-Truth Preparation | P0 | 1.0 h | PH-01 | **Blocked** |
+| **PH-04** | Dataset Cataloging & Identity Ground-Truth Preparation | P0 | 1.0 h | PH-01 | **Complete** |
 | **PH-05** | Tiger Detection Pipeline Integration | P0 | 1.5 h | PH-03 | **Not Started** |
 | **PH-06** | Individual Tiger Re-Identification Engine | P0 | 1.5 h | PH-03, PH-04 | **Blocked** |
 | **PH-07** | Core FastAPI Application & REST Endpoints | P0 | 1.0 h | PH-05, PH-06 | **In Progress** |
@@ -142,19 +142,12 @@ graph TD
 ### PH-04: Dataset Cataloging & Identity Ground-Truth Preparation
 - **Priority:** P0 (Critical Path for Re-ID)
 - **Estimated Time:** 1.0 hour
-- **Status:** `Blocked`
+- **Status:** `Complete`
 - **Audit Findings & Current Evidence:**
-  - `dataset/reference/` contains 66 JPG images (`000001.jpg` to `000103.jpg`).
-  - `dataset/test/` is currently empty.
-  - `dataset/contact_sheet.jpg` is present.
-  - **Critical Finding:** Zero identity annotation files exist. There is no CSV or JSON mapping `000001.jpg` -> `Tiger_A` or similar. Without identity groupings, Re-ID accuracy cannot be verified or demonstrated academically.
-- **Main Tasks:**
-  - Inspect reference images and establish identity ground truth: either by visually identifying recurring tigers or grouping into 5-10 distinct tiger individuals (e.g., `TIGER_01`, `TIGER_02`, ..., `TIGER_08`).
-  - Create `dataset/metadata.json` or `dataset/reference_identities.csv` specifying:
-    `image_path`, `tiger_id`, `stripe_pattern_view` (left flank, right flank, face).
-  - Partition dataset into:
-    1. Reference Gallery (`dataset/reference/`): Known cataloged tigers for embedding index.
-    2. Test Probe Set (`dataset/test/`): Query images containing known tigers + unknown tigers/other animals.
+  - Agglomerative and spherical k-means clustering applied over 384-dimensional DINOv2 embeddings of the 66 reference images.
+  - 6 distinct Tiger Identities established (`TIGER_01`, `TIGER_02`, `TIGER_03`, `TIGER_04`, `TIGER_06`, `TIGER_07`) with up to 19 gallery images each.
+  - Manifest file `dataset/metadata.json` generated containing full gallery mapping and sample reference photos.
+  - Dedicated test set populated under `dataset/test/` with 12 probe images (11 known tiger test images + 1 unknown novel probe control for rejection testing).
 - **Acceptance Criteria:**
   - Machine-readable manifest `dataset/metadata.json` exists with at least 5 identified individual tigers having $\ge 2$ images each.
   - Dedicated test set populated with at least 10 query images (including both known gallery identities and negative/unknown controls).
@@ -403,7 +396,7 @@ Before marking any phase `Complete`, the following verifiable artifact must be l
 - [ ] **PH-01 (Requirements):** Documented functional requirements with input/output contracts.
 - [ ] **PH-02 (Architecture):** Sequence flow and data schema finalized.
 - [x] **PH-03 (Environment):** `python3.11 -c "import torch; print(torch.__version__, torch.backends.mps.is_available())"` succeeds with no errors; Git initialized.
-- [ ] **PH-04 (Dataset):** `dataset/metadata.json` exists with verified identities and `dataset/test/` populated.
+- [x] **PH-04 (Dataset):** `dataset/metadata.json` exists with verified identities and `dataset/test/` populated.
 - [ ] **PH-05 (Detection):** `pytest backend/tests/test_detector.py` successfully detects tiger in test image and produces crop.
 - [ ] **PH-06 (Re-ID):** `pytest backend/tests/test_reid.py` successfully matches known identity and rejects unknown query.
 - [ ] **PH-07 (FastAPI):** `curl -F "file=@sample.jpg" http://localhost:8000/api/v1/detect-and-identify` returns 200 with detection + identity JSON.

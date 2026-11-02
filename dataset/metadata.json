@@ -1,0 +1,156 @@
+{
+  "identities": {
+    "TIGER_01": {
+      "name": "Bengal Tiger #01",
+      "gallery_images": [
+        "000001.jpg",
+        "000014.jpg",
+        "000053.jpg",
+        "000071.jpg"
+      ],
+      "sample_reference": "000001.jpg"
+    },
+    "TIGER_02": {
+      "name": "Bengal Tiger #02",
+      "gallery_images": [
+        "000003.jpg",
+        "000009.jpg",
+        "000015.jpg",
+        "000018.jpg",
+        "000024.jpg",
+        "000031.jpg",
+        "000033.jpg",
+        "000037.jpg",
+        "000039.jpg",
+        "000042.jpg",
+        "000043.jpg",
+        "000044.jpg",
+        "000047.jpg",
+        "000050.jpg",
+        "000056.jpg",
+        "000058.jpg",
+        "000064.jpg",
+        "000072.jpg",
+        "000078.jpg"
+      ],
+      "sample_reference": "000003.jpg"
+    },
+    "TIGER_03": {
+      "name": "Bengal Tiger #03",
+      "gallery_images": [
+        "000016.jpg",
+        "000019.jpg",
+        "000030.jpg",
+        "000032.jpg",
+        "000075.jpg",
+        "000086.jpg",
+        "000087.jpg"
+      ],
+      "sample_reference": "000016.jpg"
+    },
+    "TIGER_04": {
+      "name": "Bengal Tiger #04",
+      "gallery_images": [
+        "000002.jpg",
+        "000012.jpg",
+        "000020.jpg",
+        "000021.jpg",
+        "000025.jpg",
+        "000049.jpg",
+        "000066.jpg",
+        "000069.jpg",
+        "000079.jpg",
+        "000090.jpg",
+        "000094.jpg"
+      ],
+      "sample_reference": "000002.jpg"
+    },
+    "TIGER_06": {
+      "name": "Bengal Tiger #06",
+      "gallery_images": [
+        "000035.jpg"
+      ],
+      "sample_reference": "000035.jpg"
+    },
+    "TIGER_07": {
+      "name": "Bengal Tiger #07",
+      "gallery_images": [
+        "000007.jpg",
+        "000023.jpg",
+        "000041.jpg",
+        "000045.jpg",
+        "000046.jpg",
+        "000048.jpg",
+        "000051.jpg",
+        "000062.jpg",
+        "000068.jpg",
+        "000073.jpg",
+        "000083.jpg",
+        "000092.jpg"
+      ],
+      "sample_reference": "000007.jpg"
+    }
+  },
+  "test_probes": [
+    {
+      "filename": "000085.jpg",
+      "ground_truth_id": "TIGER_01",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000100.jpg",
+      "ground_truth_id": "TIGER_01",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000091.jpg",
+      "ground_truth_id": "TIGER_02",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000093.jpg",
+      "ground_truth_id": "TIGER_02",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000089.jpg",
+      "ground_truth_id": "TIGER_03",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000097.jpg",
+      "ground_truth_id": "TIGER_03",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000095.jpg",
+      "ground_truth_id": "TIGER_04",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000096.jpg",
+      "ground_truth_id": "TIGER_04",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000029.jpg",
+      "ground_truth_id": "UNKNOWN",
+      "is_known_in_gallery": false
+    },
+    {
+      "filename": "000077.jpg",
+      "ground_truth_id": "TIGER_06",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000098.jpg",
+      "ground_truth_id": "TIGER_07",
+      "is_known_in_gallery": true
+    },
+    {
+      "filename": "000103.jpg",
+      "ground_truth_id": "TIGER_07",
+      "is_known_in_gallery": true
+    }
+  ]
+}
