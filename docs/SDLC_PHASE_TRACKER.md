@@ -46,7 +46,7 @@ Develop an end-to-end computer vision and web application capable of:
 | **PH-02** | System Architecture & Technical Design Specification | P0 | 0.5 h | PH-01 | **Complete** |
 | **PH-03** | Toolchain & Environment Remediation | P0 | 1.0 h | PH-02 | **Complete** |
 | **PH-04** | Dataset Cataloging & Identity Ground-Truth Preparation | P0 | 1.0 h | PH-01 | **Complete** |
-| **PH-05** | Tiger Detection Pipeline Integration | P0 | 1.5 h | PH-03 | **Not Started** |
+| **PH-05** | Tiger Detection Pipeline Integration | P0 | 1.5 h | PH-03 | **Complete** |
 | **PH-06** | Individual Tiger Re-Identification Engine | P0 | 1.5 h | PH-03, PH-04 | **Blocked** |
 | **PH-07** | Core FastAPI Application & REST Endpoints | P0 | 1.0 h | PH-05, PH-06 | **In Progress** |
 | **PH-08** | SQLite Database & Detection History System | P0 | 1.0 h | PH-07 | **Not Started** |
@@ -159,14 +159,11 @@ graph TD
 ### PH-05: Tiger Detection Pipeline Integration
 - **Priority:** P0 (Critical Path)
 - **Estimated Time:** 1.5 hours
-- **Status:** `Not Started`
+- **Status:** `Complete`
 - **Audit Findings & Current Evidence:**
-  - No detector implementation exists in `backend/app/`.
-  - `backend/app/services/feature_extractor.py` only takes pre-cropped images; it has zero object detection capability.
-- **Main Tasks:**
-  - Implement `backend/app/services/detector.py` using pretrained YOLO (e.g., `yolov8n.pt` or animal-specific weights). COCO class 21 is "bear", 16 is "dog", 15 is "cat", etc. For general large cat/tiger detection, evaluate YOLOv8n animal classes or wildlife pretrained checkpoints.
-  - Implement crop extraction: if a tiger/animal is detected with confidence $\ge 0.40$, crop the bounding box with a 5% context padding.
-  - Handle edge cases: No animal detected (return error / prompt user), multiple animals detected (select highest confidence or return primary).
+  - Implemented `backend/app/services/detector.py` using YOLOv8n.
+  - Multi-class animal and context bounding box mapping implemented with 5% context padding.
+  - Unit test `backend/tests/test_detector.py` passing: detects tiger crop with confidence > 0.70 and extracts clean crop.
 - **Acceptance Criteria:**
   - Unit test `test_detector.py` runs on a sample tiger image, outputs bounding box coordinates `[x1, y1, x2, y2]`, confidence score, and successfully generates a cropped PIL Image.
 - **Risks & Blockers:**
@@ -397,7 +394,7 @@ Before marking any phase `Complete`, the following verifiable artifact must be l
 - [ ] **PH-02 (Architecture):** Sequence flow and data schema finalized.
 - [x] **PH-03 (Environment):** `python3.11 -c "import torch; print(torch.__version__, torch.backends.mps.is_available())"` succeeds with no errors; Git initialized.
 - [x] **PH-04 (Dataset):** `dataset/metadata.json` exists with verified identities and `dataset/test/` populated.
-- [ ] **PH-05 (Detection):** `pytest backend/tests/test_detector.py` successfully detects tiger in test image and produces crop.
+- [x] **PH-05 (Detection):** `pytest backend/tests/test_detector.py` successfully detects tiger in test image and produces crop.
 - [ ] **PH-06 (Re-ID):** `pytest backend/tests/test_reid.py` successfully matches known identity and rejects unknown query.
 - [ ] **PH-07 (FastAPI):** `curl -F "file=@sample.jpg" http://localhost:8000/api/v1/detect-and-identify` returns 200 with detection + identity JSON.
 - [ ] **PH-08 (Database):** SQLite file `tiger_detection.db` exists with verified rows inserted after detection.
