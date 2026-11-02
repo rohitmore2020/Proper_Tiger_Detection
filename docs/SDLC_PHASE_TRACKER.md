@@ -44,7 +44,7 @@ Develop an end-to-end computer vision and web application capable of:
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **PH-01** | Requirements & Acceptance Criteria Formalization | P0 | 0.5 h | None | **Complete** |
 | **PH-02** | System Architecture & Technical Design Specification | P0 | 0.5 h | PH-01 | **Complete** |
-| **PH-03** | Toolchain & Environment Remediation | P0 | 1.0 h | PH-02 | **Blocked** |
+| **PH-03** | Toolchain & Environment Remediation | P0 | 1.0 h | PH-02 | **Complete** |
 | **PH-04** | Dataset Cataloging & Identity Ground-Truth Preparation | P0 | 1.0 h | PH-01 | **Blocked** |
 | **PH-05** | Tiger Detection Pipeline Integration | P0 | 1.5 h | PH-03 | **Not Started** |
 | **PH-06** | Individual Tiger Re-Identification Engine | P0 | 1.5 h | PH-03, PH-04 | **Blocked** |
@@ -122,19 +122,14 @@ graph TD
 ### PH-03: Toolchain & Environment Remediation
 - **Priority:** P0 (Critical Path)
 - **Estimated Time:** 1.0 hour
-- **Status:** `Blocked`
+- **Status:** `Complete`
 - **Audit Findings & Current Evidence:**
-  - Existing `.venv` uses Python 3.14.3 (`/Users/rohitmore/github/Proper_Tiger_Detection/backend/.venv`).
-  - PyTorch wheels do not exist for Python 3.14 on macOS ARM64; previous pip install failed.
-  - System check confirmed: `/opt/homebrew/bin/python3.11` (Python 3.11.14) is available on the machine with full native Apple Silicon (arm64) support for PyTorch + MPS acceleration.
-  - Node.js v22.14.0 and npm 11.2.0 are installed and functional.
-  - Git repository exists but has 0 commits, no root `.gitignore`, and all files are untracked.
-- **Main Tasks:**
-  - Re-create backend virtual environment using `/opt/homebrew/bin/python3.11`.
-  - Install verified compatible packages: `torch`, `torchvision`, `transformers`, `ultralytics` (or lightweight YOLO), `fastapi`, `uvicorn`, `pillow`, `pydantic`.
-  - Verify Apple Silicon MPS (`torch.backends.mps.is_available() == True`).
-  - Configure root `.gitignore` (ignoring `.venv`, `node_modules`, `__pycache__`, `.DS_Store`, large test artifacts).
-  - Initialize Git baseline commit.
+  - Virtualenv created with verified Python 3.11.14 (`/opt/homebrew/bin/python3.11`).
+  - PyTorch 2.15.0 and Torchvision 0.29.2 installed with native Apple Silicon support.
+  - `torch.backends.mps.is_available() == True` verified.
+  - Transformers 5.21.1 and Ultralytics YOLO installed and verified.
+  - FastAPI 0.162.0, Uvicorn 0.54.0, aiosqlite 0.22.1, Pillow 13.0.0, Pytest 9.2.0 installed.
+  - Clean root `.gitignore` created and Git synchronized with GitHub remote `origin/main`.
 - **Acceptance Criteria:**
   - Python 3.11 venv imports `torch`, `transformers`, and `ultralytics` cleanly without errors.
   - `torch.backends.mps.is_available()` returns `True` or falls back gracefully to CPU.
@@ -407,7 +402,7 @@ Before marking any phase `Complete`, the following verifiable artifact must be l
 
 - [ ] **PH-01 (Requirements):** Documented functional requirements with input/output contracts.
 - [ ] **PH-02 (Architecture):** Sequence flow and data schema finalized.
-- [ ] **PH-03 (Environment):** `python3.11 -c "import torch; print(torch.__version__, torch.backends.mps.is_available())"` succeeds with no errors; Git initialized.
+- [x] **PH-03 (Environment):** `python3.11 -c "import torch; print(torch.__version__, torch.backends.mps.is_available())"` succeeds with no errors; Git initialized.
 - [ ] **PH-04 (Dataset):** `dataset/metadata.json` exists with verified identities and `dataset/test/` populated.
 - [ ] **PH-05 (Detection):** `pytest backend/tests/test_detector.py` successfully detects tiger in test image and produces crop.
 - [ ] **PH-06 (Re-ID):** `pytest backend/tests/test_reid.py` successfully matches known identity and rejects unknown query.
