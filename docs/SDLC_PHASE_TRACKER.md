@@ -48,7 +48,7 @@ Develop an end-to-end computer vision and web application capable of:
 | **PH-04** | Dataset Cataloging & Identity Ground-Truth Preparation | P0 | 1.0 h | PH-01 | **Complete** |
 | **PH-05** | Tiger Detection Pipeline Integration | P0 | 1.5 h | PH-03 | **Complete** |
 | **PH-06** | Individual Tiger Re-Identification Engine | P0 | 1.5 h | PH-03, PH-04 | **Complete** |
-| **PH-07** | Core FastAPI Application & REST Endpoints | P0 | 1.0 h | PH-05, PH-06 | **In Progress** |
+| **PH-07** | Core FastAPI Application & REST Endpoints | P0 | 1.0 h | PH-05, PH-06 | **Complete** |
 | **PH-08** | SQLite Database & Detection History System | P0 | 1.0 h | PH-07 | **Not Started** |
 | **PH-09** | React Dashboard UI Development | P0 | 2.0 h | PH-02 | **Not Started** |
 | **PH-10** | Frontend-Backend Integration & End-to-End Pipeline | P0 | 1.0 h | PH-07, PH-08, PH-09 | **Not Started** |
@@ -191,40 +191,12 @@ graph TD
 ### PH-07: Core FastAPI Application & REST Endpoints
 - **Priority:** P0 (Integration Core)
 - **Estimated Time:** 1.0 hour
-- **Status:** `In Progress`
+- **Status:** `Complete`
 - **Audit Findings & Current Evidence:**
-  - `backend/app/main.py` has basic `/health` and `/api/v1/images/validate` endpoints.
-  - Image size check and PIL verification exist.
-  - Missing detection endpoint, re-ID matching endpoint, CORS middleware, and structured schemas.
-- **Main Tasks:**
-  - Add CORS middleware (`CORSMiddleware`) allowing `http://localhost:5173` (Vite dev server).
-  - Add `POST /api/v1/detect-and-identify`:
-    - Accepts multipart image upload.
-    - Runs detector -> extracts bbox & confidence.
-    - Runs re-ID feature extractor on crop -> matches gallery.
-    - Returns JSON:
-      ```json
-      {
-        "filename": "query.jpg",
-        "detection": {
-          "detected": true,
-          "box": [120, 80, 450, 410],
-          "confidence": 0.92
-        },
-        "identification": {
-          "matched_id": "TIGER_03",
-          "similarity_score": 0.84,
-          "is_known": true,
-          "reference_image": "000012.jpg",
-          "top_candidates": [
-            {"tiger_id": "TIGER_03", "score": 0.84, "ref_image": "000012.jpg"},
-            {"tiger_id": "TIGER_01", "score": 0.62, "ref_image": "000001.jpg"}
-          ]
-        },
-        "processing_time_ms": 340
-      }
-      ```
-  - Mount static files directory to serve reference and uploaded images to the frontend.
+  - Implemented `/api/v1/detect-and-identify` endpoint in `backend/app/main.py`.
+  - Mounted `/static/reference` and `/static/uploads` for frontend visual comparisons.
+  - Added CORS middleware supporting React/Vite development origins.
+  - Full automated test suite in `backend/tests/test_api.py` passing: validates image, executes detection, and returns identification candidates.
 - **Acceptance Criteria:**
   - `curl -X POST /api/v1/detect-and-identify` returns status 200 with complete JSON schema and execution time under 1.5 seconds.
 - **Risks & Blockers:**
@@ -388,7 +360,7 @@ Before marking any phase `Complete`, the following verifiable artifact must be l
 - [x] **PH-04 (Dataset):** `dataset/metadata.json` exists with verified identities and `dataset/test/` populated.
 - [x] **PH-05 (Detection):** `pytest backend/tests/test_detector.py` successfully detects tiger in test image and produces crop.
 - [x] **PH-06 (Re-ID):** `pytest backend/tests/test_reid.py` successfully matches known identity and rejects unknown query.
-- [ ] **PH-07 (FastAPI):** `curl -F "file=@sample.jpg" http://localhost:8000/api/v1/detect-and-identify` returns 200 with detection + identity JSON.
+- [x] **PH-07 (FastAPI):** `curl -F "file=@sample.jpg" http://localhost:8000/api/v1/detect-and-identify` returns 200 with detection + identity JSON.
 - [ ] **PH-08 (Database):** SQLite file `tiger_detection.db` exists with verified rows inserted after detection.
 - [ ] **PH-09 (Frontend UI):** Vite build succeeds without compile or lint errors.
 - [ ] **PH-10 (Integration):** Live end-to-end browser test: upload image -> view bbox -> view matched tiger & similarity score -> view entry in history table.
