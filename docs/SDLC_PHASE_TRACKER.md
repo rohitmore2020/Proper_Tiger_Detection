@@ -47,7 +47,7 @@ Develop an end-to-end computer vision and web application capable of:
 | **PH-03** | Toolchain & Environment Remediation | P0 | 1.0 h | PH-02 | **Complete** |
 | **PH-04** | Dataset Cataloging & Identity Ground-Truth Preparation | P0 | 1.0 h | PH-01 | **Complete** |
 | **PH-05** | Tiger Detection Pipeline Integration | P0 | 1.5 h | PH-03 | **Complete** |
-| **PH-06** | Individual Tiger Re-Identification Engine | P0 | 1.5 h | PH-03, PH-04 | **Blocked** |
+| **PH-06** | Individual Tiger Re-Identification Engine | P0 | 1.5 h | PH-03, PH-04 | **Complete** |
 | **PH-07** | Core FastAPI Application & REST Endpoints | P0 | 1.0 h | PH-05, PH-06 | **In Progress** |
 | **PH-08** | SQLite Database & Detection History System | P0 | 1.0 h | PH-07 | **Not Started** |
 | **PH-09** | React Dashboard UI Development | P0 | 2.0 h | PH-02 | **Not Started** |
@@ -174,20 +174,12 @@ graph TD
 ### PH-06: Individual Tiger Re-Identification Engine
 - **Priority:** P0 (Core Novelty)
 - **Estimated Time:** 1.5 hours
-- **Status:** `Blocked` (Venv lacks torch/transformers)
+- **Status:** `Complete`
 - **Audit Findings & Current Evidence:**
-  - `backend/app/services/feature_extractor.py` was created using `facebook/dinov2-small`.
-  - Code relies on `AutoImageProcessor` and `AutoModel` from `transformers`.
-  - `backend/tests/test_feature_extractor.py` exists but cannot run due to missing dependencies.
-- **Main Tasks:**
-  - Fix imports and ensure DINOv2-small loads efficiently on Apple Silicon (using MPS if available, CPU fallback).
-  - Implement Gallery Vector Indexer: precompute normalized embeddings for all images in the reference gallery and store in a cached index (`gallery_embeddings.pt` or `gallery_index.pkl`).
-  - Implement matching logic:
-    - Input: Query tiger crop.
-    - Extract query embedding $\mathbf{q} \in \mathbb{R}^{384}$.
-    - Compute cosine similarity $S_i = \mathbf{q} \cdot \mathbf{g}_i$ against gallery.
-    - Aggregate by tiger identity (e.g., Top-1 or average similarity per identity).
-    - Threshold decision rule: if $\max(S_i) \ge \tau$, return `identity = Tiger_ID`, `score = max(S)`; else return `identity = "Unknown"`, `score = max(S)`.
+  - Implemented `backend/app/services/reid_engine.py` using DINOv2-small embeddings with cosine similarity matching.
+  - Indexing reference gallery vectors dynamically from `dataset/metadata.json`.
+  - Multi-candidate ranking and dual-decision logic ($\tau = 0.72$) implemented.
+  - Tests in `backend/tests/test_reid.py` passed cleanly (Rank-1 known match and novel probe handling).
 - **Acceptance Criteria:**
   - Automated test compares probe image of known tiger against gallery and correctly retrieves the true tiger identity with similarity $> \tau$.
   - Probe of unknown animal returns `Unknown` with score $< \tau$.
@@ -395,7 +387,7 @@ Before marking any phase `Complete`, the following verifiable artifact must be l
 - [x] **PH-03 (Environment):** `python3.11 -c "import torch; print(torch.__version__, torch.backends.mps.is_available())"` succeeds with no errors; Git initialized.
 - [x] **PH-04 (Dataset):** `dataset/metadata.json` exists with verified identities and `dataset/test/` populated.
 - [x] **PH-05 (Detection):** `pytest backend/tests/test_detector.py` successfully detects tiger in test image and produces crop.
-- [ ] **PH-06 (Re-ID):** `pytest backend/tests/test_reid.py` successfully matches known identity and rejects unknown query.
+- [x] **PH-06 (Re-ID):** `pytest backend/tests/test_reid.py` successfully matches known identity and rejects unknown query.
 - [ ] **PH-07 (FastAPI):** `curl -F "file=@sample.jpg" http://localhost:8000/api/v1/detect-and-identify` returns 200 with detection + identity JSON.
 - [ ] **PH-08 (Database):** SQLite file `tiger_detection.db` exists with verified rows inserted after detection.
 - [ ] **PH-09 (Frontend UI):** Vite build succeeds without compile or lint errors.
